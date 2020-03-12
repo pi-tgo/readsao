@@ -633,8 +633,8 @@ ax.set_ylabel('Virtual height (km)')
 # toggle output to file, comment/uncomment these lines 
 # if you don't want output to file: usage: python readsao.py inputfile
 
-#savefilename = sys.argv[2]
-#fig.savefig(savefilename)
+savefilename = sys.argv[2]
+fig.savefig(savefilename)
 
 # toggle output to screen, comment/uncomment the next line (note you can have both!)
 plt.show()
