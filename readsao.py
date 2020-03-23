@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+# Documentation of the SAO format: https://ulcar.uml.edu/~iag/SAO-4.3.htm
+
 import sys
 import struct
 import datetime
@@ -12,10 +14,15 @@ import copy
 import matplotlib.pyplot as plt
 plt.rcParams["figure.figsize"] = (12, 8)
 
+filename = 'TR169_2020083143000.SAO'
 #filename = 'TR169_2020064101500.SAO'			# for testing purposes
 
-f = open(sys.argv[1], "rb")				# comment if you want to run the code inside python using >>> exec(open('readsao.py').read())
-#f = open(filename, "rb")				# use this if filename is defined above 
+#f = open(sys.argv[1], "rb")				# comment if you want to run the code inside python using >>> exec(open('readsao.py').read())
+f = open(filename, "rb")				# use this if filename is defined above 
+
+#-----------------
+# Data File Index 
+#-----------------
 
 num_elements = np.zeros(80)   # define array num_elements
 data_index = f.read(40*3).decode("utf-8")
@@ -30,6 +37,10 @@ for i in range(40):
 
 crdummy = f.read(2)
 
+#--------------------------------
+# GROUP 1: Geophysical Constants 
+#--------------------------------
+
 geophysical_constant = np.zeros(int(num_elements[0])) # define array geophysical_constants
 for i in range(int(num_elements[0])):
    constant = f.read(7)
@@ -38,15 +49,23 @@ for i in range(int(num_elements[0])):
 if int(num_elements[0]) != 0:
    crdummy = f.read(2)
 
-# System Description and Operator Messages
+#----------------------------------------------------
+# GROUP 2: System Description and Operator's Message 
+#----------------------------------------------------
+
 for i in range(int(num_elements[1])):
    system_description_and_operator_message = str(f.read(120))
 
 if int(num_elements[1]) != 0:
    crdummy = f.read(2)
 
-# Assuming Digisonde Portable Sounder System only
+#------------------------------------------
+# GROUP 3: Time Stamp and Sounder Settings 
+#------------------------------------------
+
+# Assuming Digisonde Portable Sounder (DPS) System only (Table 4)
 time_and_sounder_settings = f.read(int(num_elements[2]))
+
 version_indicator = time_and_sounder_settings[0:2].decode("utf-8")  			# string (AA, FF or FE)
 year = int(time_and_sounder_settings[2:6])						# int (1976-...)
 day_of_year = int(time_and_sounder_settings[6:9])					# int (1-366)
@@ -87,7 +106,10 @@ high_interference_condition = int(time_and_sounder_settings[76:77])			# int (0,1
 if int(num_elements[2]) != 0:
    crdummy = f.read(2)
 
-# Scaled Ionospheric Characteristics
+#---------------------------------------------
+# GROUP 4: Scaled Ionospheric Characteristics 
+#---------------------------------------------
+
 scaled_ionospheric_characteristics = np.zeros(int(num_elements[3]))
 for i in range(int(num_elements[3])):
    if (i != 0) and ((i % 15) == 0):
@@ -97,7 +119,10 @@ for i in range(int(num_elements[3])):
 if int(num_elements[3]) != 0:
    crdummy = f.read(2)
 
-# Analysis flags
+#-------------------------
+# GROUP 5: Analysis flags 
+#-------------------------
+
 analysis_flags = np.zeros(int(num_elements[4]))
 for i in range(int(num_elements[4])):
    analysis_flags[i] = f.read(2)
@@ -105,7 +130,10 @@ for i in range(int(num_elements[4])):
 if int(num_elements[4]) != 0:
    crdummy = f.read(2)
 
-# Doppler translation table
+#------------------------------------
+# GROUP 6: Doppler translation table 
+#------------------------------------
+
 doppler_translation_table = np.zeros(int(num_elements[5]))
 for i in range(int(num_elements[5])):
    doppler_translation_table[i] = f.read(7)
@@ -113,9 +141,10 @@ for i in range(int(num_elements[5])):
 if int(num_elements[5]) != 0:
    crdummy = f.read(2)
 
-#-------
-# O-Trace points - f2 layer - Virtual heights
-#-------
+#------------------------------------------------------
+# GROUP 7: O-Trace points - f2 layer - Virtual heights
+#------------------------------------------------------
+
 o_f2_virt_heights = np.zeros(int(num_elements[6]))
 for i in range(int(num_elements[6])):
    if (i != 0) and ((i % 15) == 0):
@@ -125,7 +154,10 @@ for i in range(int(num_elements[6])):
 if int(num_elements[6]) != 0:
    crdummy = f.read(2)
 
-# O-Trace points - f2 layer - True heights
+#---------------------------------------------------
+# GROUP 8: O-Trace points - f2 layer - True heights
+#---------------------------------------------------
+
 o_f2_true_heights = np.zeros(int(num_elements[7]))
 for i in range(int(num_elements[7])):
    if (i != 0) and ((i % 15) == 0):
@@ -135,7 +167,10 @@ for i in range(int(num_elements[7])):
 if int(num_elements[7]) != 0:
    crdummy = f.read(2)
 
-# O-Trace points - f2 layer - Amplitutes
+#-------------------------------------------------
+# GROUP 9: O-Trace points - f2 layer - Amplitudes
+#-------------------------------------------------
+
 o_f2_amplitudes = np.zeros(int(num_elements[8]))
 for i in range(int(num_elements[8])):
    if (i != 0) and ((i % 40) == 0):
@@ -145,7 +180,10 @@ for i in range(int(num_elements[8])):
 if int(num_elements[8]) != 0:
    crdummy = f.read(2)
 
-# O-Trace points - f2 layer - Doppler numbers
+#-------------------------------------------------------
+# GROUP 10: O-Trace points - f2 layer - Doppler numbers
+#-------------------------------------------------------
+
 o_f2_doppler_numbers = np.zeros(int(num_elements[9]))
 for i in range(int(num_elements[9])):
    if (i != 0) and ((i % 120) == 0):
@@ -155,7 +193,10 @@ for i in range(int(num_elements[9])):
 if int(num_elements[9]) != 0:
    crdummy = f.read(2)
 
-# O-Trace - f2 layer - Frequencies
+#--------------------------------------------
+# GROUP 11: O-Trace - f2 layer - Frequencies
+#--------------------------------------------
+
 o_f2_frequencies =  np.zeros(int(num_elements[10]))
 for i in range(int(num_elements[10])):
    if (i != 0) and ((i % 15) == 0):
@@ -165,9 +206,10 @@ for i in range(int(num_elements[10])):
 if int(num_elements[10]) != 0:
    crdummy = f.read(2)
 
-#-------
-# O-Trace points - f1 layer - Virtual heights
-#-------
+#-------------------------------------------------------
+# GROUP 12: O-Trace points - f1 layer - Virtual heights
+#-------------------------------------------------------
+
 o_f1_virt_heights = np.zeros(int(num_elements[11]))
 for i in range(int(num_elements[11])):
    if (i != 0) and ((i % 15) == 0):
@@ -177,7 +219,10 @@ for i in range(int(num_elements[11])):
 if int(num_elements[11]) != 0:
    crdummy = f.read(2)
 
-# O-Trace points - f1 layer - True heights
+#----------------------------------------------------
+# GROUP 13: O-Trace points - f1 layer - True heights
+#----------------------------------------------------
+
 o_f1_true_heights = np.zeros(int(num_elements[12]))
 for i in range(int(num_elements[12])):
    if (i != 0) and ((i % 15) == 0):
@@ -187,7 +232,10 @@ for i in range(int(num_elements[12])):
 if int(num_elements[12]) != 0:
    crdummy = f.read(2)
 
-# O-Trace points - f1 layer - Amplitutes
+#--------------------------------------------------
+# GROUP 14: O-Trace points - f1 layer - Amplitutes
+#--------------------------------------------------
+
 o_f1_amplitudes = np.zeros(int(num_elements[13]))
 for i in range(int(num_elements[13])):
    if (i != 0) and ((i % 40) == 0):
@@ -197,7 +245,10 @@ for i in range(int(num_elements[13])):
 if int(num_elements[13]) != 0:
    crdummy = f.read(2)
 
-# O-Trace points - f1 layer - Doppler numbers
+#-------------------------------------------------------
+# GROUP 15: O-Trace points - f1 layer - Doppler numbers
+#-------------------------------------------------------
+
 o_f1_doppler_numbers = np.zeros(int(num_elements[14]))
 for i in range(int(num_elements[14])):
    if (i != 0) and ((i % 120) == 0):
@@ -207,7 +258,10 @@ for i in range(int(num_elements[14])):
 if int(num_elements[14]) != 0:
    crdummy = f.read(2)
 
-# O-Trace - f1 layer - Frequencies
+#--------------------------------------------
+# GROUP 16: O-Trace - f1 layer - Frequencies
+#--------------------------------------------
+
 o_f1_frequencies =  np.zeros(int(num_elements[15]))
 for i in range(int(num_elements[15])):
    if (i != 0) and ((i % 15) == 0):
@@ -217,9 +271,10 @@ for i in range(int(num_elements[15])):
 if int(num_elements[15]) != 0:
    crdummy = f.read(2)
 
-#-------
-# O-Trace points - E layer - Virtual heights
-#-------
+#------------------------------------------------------
+# GROUP 17: O-Trace points - E layer - Virtual heights
+#------------------------------------------------------
+
 o_e_virt_heights = np.zeros(int(num_elements[16]))
 for i in range(int(num_elements[16])):
    if (i != 0) and ((i % 15) == 0):
@@ -229,7 +284,10 @@ for i in range(int(num_elements[16])):
 if int(num_elements[16]) != 0:
    crdummy = f.read(2)
 
-# O-Trace points - E layer - True heights
+#---------------------------------------------------
+# GROUP 18: O-Trace points - E layer - True heights
+#---------------------------------------------------
+
 o_e_true_heights = np.zeros(int(num_elements[17]))
 for i in range(int(num_elements[17])):
    if (i != 0) and ((i % 15) == 0):
@@ -239,7 +297,10 @@ for i in range(int(num_elements[17])):
 if int(num_elements[17]) != 0:
    crdummy = f.read(2)
 
-# O-Trace points - E layer - Amplitutes
+#-------------------------------------------------
+# GROUP 19: O-Trace points - E layer - Amplitutes
+#-------------------------------------------------
+
 o_e_amplitudes = np.zeros(int(num_elements[18]))
 for i in range(int(num_elements[18])):
    if (i != 0) and ((i % 40) == 0):
@@ -249,7 +310,10 @@ for i in range(int(num_elements[18])):
 if int(num_elements[18]) != 0:
    crdummy = f.read(2)
 
-# O-Trace points - E layer - Doppler numbers
+#------------------------------------------------------
+# GROUP 20: O-Trace points - E layer - Doppler numbers
+#------------------------------------------------------
+
 o_e_doppler_numbers = np.zeros(int(num_elements[19]))
 for i in range(int(num_elements[19])):
    if (i != 0) and ((i % 120) == 0):
@@ -259,7 +323,10 @@ for i in range(int(num_elements[19])):
 if int(num_elements[19]) != 0:
    crdummy = f.read(2)
 
-# O-Trace points - E layer - Frequencies
+#--------------------------------------------------
+# GROUP 21: O-Trace points - E layer - Frequencies
+#--------------------------------------------------
+
 o_e_frequencies =  np.zeros(int(num_elements[20]))
 for i in range(int(num_elements[20])):
    if (i != 0) and ((i % 15) == 0):
@@ -269,9 +336,10 @@ for i in range(int(num_elements[20])):
 if int(num_elements[20]) != 0:
    crdummy = f.read(2)
 
-#-------
-# X-Trace points - f2 layer - Virtual heights
-#-------
+#-------------------------------------------------------
+# GROUP 22: X-Trace points - f2 layer - Virtual heights
+#-------------------------------------------------------
+
 x_f2_virt_heights = np.zeros(int(num_elements[21]))
 for i in range(int(num_elements[21])):
    if (i != 0) and ((i % 15) == 0):
@@ -281,7 +349,10 @@ for i in range(int(num_elements[21])):
 if int(num_elements[21]) != 0:
    crdummy = f.read(2)
 
-# X-Trace points - f2 layer - Amplitutes
+#--------------------------------------------------
+# GROUP 23: X-Trace points - f2 layer - Amplitutes
+#--------------------------------------------------
+
 x_f2_amplitudes = np.zeros(int(num_elements[22]))
 for i in range(int(num_elements[22])):
    if (i != 0) and ((i % 40) == 0):
@@ -291,7 +362,10 @@ for i in range(int(num_elements[22])):
 if int(num_elements[22]) != 0:
    crdummy = f.read(2)
 
-# X-Trace points - f2 layer - Doppler numbers
+#-------------------------------------------------------
+# GROUP 24: X-Trace points - f2 layer - Doppler numbers
+#-------------------------------------------------------
+
 x_f2_doppler_numbers = np.zeros(int(num_elements[23]))
 for i in range(int(num_elements[23])):
    if (i != 0) and ((i % 120) == 0):
@@ -301,7 +375,10 @@ for i in range(int(num_elements[23])):
 if int(num_elements[23]) != 0:
    crdummy = f.read(2)
 
-# X-Trace - f2 layer - Frequencies
+#--------------------------------------------
+# GROUP 25: X-Trace - f2 layer - Frequencies
+#--------------------------------------------
+
 x_f2_frequencies =  np.zeros(int(num_elements[24]))
 for i in range(int(num_elements[24])):
    if (i != 0) and ((i % 15) == 0):
@@ -311,9 +388,10 @@ for i in range(int(num_elements[24])):
 if int(num_elements[24]) != 0:
    crdummy = f.read(2)
 
-#-------
-# X-Trace points - f1 layer - Virtual heights
-#-------
+#-------------------------------------------------------
+# GROUP 26: X-Trace points - f1 layer - Virtual heights
+#-------------------------------------------------------
+
 x_f1_virt_heights = np.zeros(int(num_elements[25]))
 for i in range(int(num_elements[25])):
    if (i != 0) and ((i % 15) == 0):
@@ -323,7 +401,10 @@ for i in range(int(num_elements[25])):
 if int(num_elements[25]) != 0:
    crdummy = f.read(2)
 
-# X-Trace points - f1 layer - Amplitutes
+#--------------------------------------------------
+# GROUP 27: X-Trace points - f1 layer - Amplitutes
+#--------------------------------------------------
+
 x_f1_amplitudes = np.zeros(int(num_elements[26]))
 for i in range(int(num_elements[26])):
    if (i != 0) and ((i % 40) == 0):
@@ -333,7 +414,10 @@ for i in range(int(num_elements[26])):
 if int(num_elements[26]) != 0:
    crdummy = f.read(2)
 
-# X-Trace points - f1 layer - Doppler numbers
+#-------------------------------------------------------
+# GROUP 28: X-Trace points - f1 layer - Doppler numbers
+#-------------------------------------------------------
+
 x_f1_doppler_numbers = np.zeros(int(num_elements[27]))
 for i in range(int(num_elements[27])):
    if (i != 0) and ((i % 120) == 0):
@@ -343,7 +427,10 @@ for i in range(int(num_elements[27])):
 if int(num_elements[27]) != 0:
    crdummy = f.read(2)
 
-# X-Trace points - f1 layer - Frequencies
+#---------------------------------------------------
+# GROUP 29: X-Trace points - f1 layer - Frequencies
+#---------------------------------------------------
+
 x_f1_frequencies =  np.zeros(int(num_elements[28]))
 for i in range(int(num_elements[28])):
    if (i != 0) and ((i % 15) == 0):
@@ -353,9 +440,10 @@ for i in range(int(num_elements[28])):
 if int(num_elements[28]) != 0:
    crdummy = f.read(2)
 
-#-------
-# X-Trace points - E layer - Virtual heights
-#-------
+#------------------------------------------------------
+# GROUP 30: X-Trace points - E layer - Virtual heights
+#------------------------------------------------------
+
 x_e_virt_heights = np.zeros(int(num_elements[29]))
 for i in range(int(num_elements[29])):
    if (i != 0) and ((i % 15) == 0):
@@ -365,7 +453,10 @@ for i in range(int(num_elements[29])):
 if int(num_elements[29]) != 0:
    crdummy = f.read(2)
 
-# X-Trace points - E layer - Amplitutes
+#-------------------------------------------------
+# GROUP 31: X-Trace points - E layer - Amplitudes
+#-------------------------------------------------
+
 x_e_amplitudes = np.zeros(int(num_elements[30]))
 for i in range(int(num_elements[30])):
    if (i != 0) and ((i % 40) == 0):
@@ -375,7 +466,10 @@ for i in range(int(num_elements[30])):
 if int(num_elements[30]) != 0:
    crdummy = f.read(2)
 
-# X-Trace points - E layer - Doppler numbers
+#------------------------------------------------------
+# GROUP 32: X-Trace points - E layer - Doppler numbers
+#------------------------------------------------------
+
 x_e_doppler_numbers = np.zeros(int(num_elements[31]))
 for i in range(int(num_elements[31])):
    if (i != 0) and ((i % 120) == 0):
@@ -385,7 +479,10 @@ for i in range(int(num_elements[31])):
 if int(num_elements[31]) != 0:
    crdummy = f.read(2)
 
-# X-Trace points - E layer - Frequencies
+#--------------------------------------------------
+# GROUP 33: X-Trace points - E layer - Frequencies
+#--------------------------------------------------
+
 x_e_frequencies =  np.zeros(int(num_elements[32]))
 for i in range(int(num_elements[32])):
    if (i != 0) and ((i % 15) == 0):
@@ -395,7 +492,10 @@ for i in range(int(num_elements[32])):
 if int(num_elements[32]) != 0:
    crdummy = f.read(2)
 
-# Median amplitudes of F echoes
+#-----------------------------------------
+# GROUP 34: Median amplitudes of F echoes
+#-----------------------------------------
+
 median_amplitudes_f_echoes = np.zeros(int(num_elements[33]))
 for i in range(int(num_elements[33])):
    if (i != 0) and ((i % 40) == 0):
@@ -405,7 +505,9 @@ for i in range(int(num_elements[33])):
 if int(num_elements[33]) != 0:
    crdummy = f.read(2)
 
-# Median amplitudes of E echoes
+#-----------------------------------------
+# GROUP 35: Median amplitudes of E echoes
+#-----------------------------------------
 
 median_amplitudes_e_echoes = np.zeros(int(num_elements[34]))
 for i in range(int(num_elements[34])):
@@ -416,7 +518,10 @@ for i in range(int(num_elements[34])):
 if int(num_elements[34]) != 0:
    crdummy = f.read(2)
 
-# Median amplitudes of ES echoes
+#------------------------------------------
+# GROUP 36: Median amplitudes of ES echoes
+#------------------------------------------
+
 median_amplitudes_es_echoes = np.zeros(int(num_elements[35]))
 for i in range(int(num_elements[35])):
    if (i != 0) and ((i % 40) == 0):
@@ -426,7 +531,10 @@ for i in range(int(num_elements[35])):
 if int(num_elements[35]) != 0:
    crdummy = f.read(2)
 
-# True heights coefficients f2 layer Umlcar method
+#------------------------------------------------------------
+# GROUP 37: True heights coefficients f2 layer Umlcar method
+#------------------------------------------------------------
+
 true_heights_coeff_f2_layer = np.zeros(int(num_elements[36]))
 for i in range(int(num_elements[36])):
    if (i != 0) and ((i % 11) == 0):
@@ -436,7 +544,10 @@ for i in range(int(num_elements[36])):
 if int(num_elements[36]) != 0:
    crdummy = f.read(2)
 
-# True heights coefficients f1 layer Umlcar method
+#------------------------------------------------------------
+# GROUP 38: True heights coefficients f1 layer Umlcar method
+#------------------------------------------------------------
+
 true_heights_coeff_f1_layer = np.zeros(int(num_elements[37]))
 for i in range(int(num_elements[37])):
    if (i != 0) and ((i % 11) == 0):
@@ -446,7 +557,10 @@ for i in range(int(num_elements[37])):
 if int(num_elements[37]) != 0:
    crdummy = f.read(2)
 
-# True heights coefficients E layer Umlcar method
+#-----------------------------------------------------------
+# GROUP 39: True heights coefficients E layer Umlcar method
+#-----------------------------------------------------------
+
 true_heights_coeff_e_layer = np.zeros(int(num_elements[38]))
 for i in range(int(num_elements[38])):
    if (i != 0) and ((i % 11) == 0):
@@ -456,7 +570,10 @@ for i in range(int(num_elements[38])):
 if int(num_elements[38]) != 0:
    crdummy = f.read(2)
 
-# Quazi-Parabolic segments fitted to the profile
+#----------------------------------------------------------
+# GROUP 40: Quazi-Parabolic segments fitted to the profile
+#----------------------------------------------------------
+
 quazi_parabolic_segments = np.zeros(int(num_elements[39]))
 for i in range(int(num_elements[39])):
    if (i != 0) and ((i % 6) == 0):
@@ -466,7 +583,10 @@ for i in range(int(num_elements[39])):
 if int(num_elements[39]) != 0:
    crdummy = f.read(2)
 
-# Edit flags characteristics 
+#--------------------------------------
+# GROUP 41: Edit flags characteristics 
+#--------------------------------------
+
 edit_flags = np.zeros(int(num_elements[40]))
 for i in range(int(num_elements[40])):
    if (i != 0) and ((i % 120) == 0):
@@ -476,7 +596,10 @@ for i in range(int(num_elements[40])):
 if int(num_elements[40]) != 0:
    crdummy = f.read(2)
 
-# Valley description
+#------------------------------
+# GROUP 42: Valley description
+#------------------------------
+
 valley_description = np.zeros(int(num_elements[41]))
 for i in range(int(num_elements[41])):
    if (i != 0) and ((i % 11) == 0):
@@ -486,9 +609,10 @@ for i in range(int(num_elements[41])):
 if int(num_elements[41]) != 0:
    crdummy = f.read(2)
 
-#-------
-# O-Trace points - Es layer - Virtual heights
-#-------
+#-------------------------------------------------------
+# GROUP 43: O-Trace points - Es layer - Virtual heights
+#-------------------------------------------------------
+
 o_es_virt_heights = np.zeros(int(num_elements[42]))
 for i in range(int(num_elements[42])):
    if (i != 0) and ((i % 15) == 0):
@@ -498,7 +622,10 @@ for i in range(int(num_elements[42])):
 if int(num_elements[42]) != 0:
    crdummy = f.read(2)
 
-# O-Trace points - Es layer - Amplitutes
+#--------------------------------------------------
+# GROUP 44: O-Trace points - Es layer - Amplitutes
+#--------------------------------------------------
+
 o_es_amplitudes = np.zeros(int(num_elements[43]))
 for i in range(int(num_elements[43])):
    if (i != 0) and ((i % 40) == 0):
@@ -508,7 +635,10 @@ for i in range(int(num_elements[43])):
 if int(num_elements[43]) != 0:
    crdummy = f.read(2)
 
-# O-Trace points - Es layer - Doppler numbers
+#-------------------------------------------------------
+# GROUP 45: O-Trace points - Es layer - Doppler numbers
+#-------------------------------------------------------
+
 o_es_doppler_numbers = np.zeros(int(num_elements[44]))
 for i in range(int(num_elements[44])):
    if (i != 0) and ((i % 120) == 0):
@@ -518,7 +648,10 @@ for i in range(int(num_elements[44])):
 if int(num_elements[44]) != 0:
    crdummy = f.read(2)
 
-# O-Trace points - Es layer - Frequencies
+#---------------------------------------------------
+# GROUP 46: O-Trace points - Es layer - Frequencies
+#---------------------------------------------------
+
 o_es_frequencies =  np.zeros(int(num_elements[45]))
 for i in range(int(num_elements[45])):
    if (i != 0) and ((i % 15) == 0):
@@ -528,9 +661,10 @@ for i in range(int(num_elements[45])):
 if int(num_elements[45]) != 0:
    crdummy = f.read(2)
 
-#-------
-# O-Trace points - E Auroral layer - Virtual heights
-#-------
+#--------------------------------------------------------------
+# GROUP 47: O-Trace points - E Auroral layer - Virtual heights
+#--------------------------------------------------------------
+
 o_ea_virt_heights = np.zeros(int(num_elements[46]))
 for i in range(int(num_elements[46])):
    if (i != 0) and ((i % 15) == 0):
@@ -540,7 +674,10 @@ for i in range(int(num_elements[46])):
 if int(num_elements[46]) != 0:
    crdummy = f.read(2)
 
-# O-Trace points - Es layer - Amplitutes
+#--------------------------------------------------
+# GROUP 48: O-Trace points - Es layer - Amplitutes
+#--------------------------------------------------
+
 o_ea_amplitudes = np.zeros(int(num_elements[47]))
 for i in range(int(num_elements[47])):
    if (i != 0) and ((i % 40) == 0):
@@ -550,7 +687,10 @@ for i in range(int(num_elements[47])):
 if int(num_elements[47]) != 0:
    crdummy = f.read(2)
 
-# O-Trace points - Es layer - Doppler numbers
+#-------------------------------------------------------
+# GROUP 49: O-Trace points - Es layer - Doppler numbers
+#-------------------------------------------------------
+
 o_ea_doppler_numbers = np.zeros(int(num_elements[48]))
 for i in range(int(num_elements[48])):
    if (i != 0) and ((i % 120) == 0):
@@ -560,7 +700,10 @@ for i in range(int(num_elements[48])):
 if int(num_elements[48]) != 0:
    crdummy = f.read(2)
 
-# O-Trace points - Es layer - Frequencies
+#---------------------------------------------------
+# GROUP 50: O-Trace points - Es layer - Frequencies
+#---------------------------------------------------
+
 o_ea_frequencies =  np.zeros(int(num_elements[49]))
 for i in range(int(num_elements[49])):
    if (i != 0) and ((i % 15) == 0):
@@ -570,9 +713,10 @@ for i in range(int(num_elements[49])):
 if int(num_elements[49]) != 0:
    crdummy = f.read(2)
 
-#-------
-# True height profiles
-#-------
+#--------------------------------
+# GROUP 51: True height profiles
+#--------------------------------
+
 true_heights = np.zeros(int(num_elements[50]))
 for i in range(int(num_elements[50])):
    if (i != 0) and ((i % 15) == 0):
@@ -582,7 +726,10 @@ for i in range(int(num_elements[50])):
 if int(num_elements[50]) != 0:
    crdummy = f.read(2)
 
-# Plasma Frequencies
+#------------------------------
+# GROUP 52: Plasma Frequencies
+#------------------------------
+
 plasma_frequencies = np.zeros(int(num_elements[51]))
 for i in range(int(num_elements[51])):
    if (i != 0) and ((i % 15) == 0):
@@ -592,7 +739,10 @@ for i in range(int(num_elements[51])):
 if int(num_elements[51]) != 0:
    crdummy = f.read(2)
 
-# Electron densities
+#------------------------------
+# GROUP 53: Electron densities
+#------------------------------
+
 electron_density = np.zeros(int(num_elements[52]))
 for i in range(int(num_elements[52])):
    if (i != 0) and ((i % 15) == 0):
@@ -611,14 +761,22 @@ f.close()
 title = 'Ionosonde TOS ' + str(datetime.datetime(year, month, day_of_month, hour, min, sec))
 
 fig, ax = plt.subplots()
-plt.scatter(o_f2_frequencies, o_f2_virt_heights, s=1, c="blue", label='O-F2')
-plt.scatter(o_f1_frequencies, o_f1_virt_heights, s=1, c="green", label='O-F1')
-plt.scatter(o_e_frequencies, o_e_virt_heights, s=1, c="red", label='O-E')
-plt.scatter(x_f2_frequencies, x_f2_virt_heights, s=1, c="cyan", label='X-F2')
-plt.scatter(x_f1_frequencies, x_f1_virt_heights, s=1, c="magenta", label='X-F1')
-plt.scatter(x_e_frequencies, x_e_virt_heights, s=1, c="yellow", label='X-E')
-plt.scatter(o_es_frequencies, o_es_virt_heights, s=1, c="black", label='O-Es')
-plt.scatter(o_ea_frequencies, o_ea_virt_heights, s=1, c="#005030", label='O-E Aur')
+#plt.scatter(o_f2_frequencies, o_f2_virt_heights, s=1, c="blue", label='O-F2')
+#plt.scatter(o_f1_frequencies, o_f1_virt_heights, s=1, c="green", label='O-F1')
+#plt.scatter(o_e_frequencies, o_e_virt_heights, s=1, c="red", label='O-E')
+#plt.scatter(x_f2_frequencies, x_f2_virt_heights, s=1, c="cyan", label='X-F2')
+#plt.scatter(x_f1_frequencies, x_f1_virt_heights, s=1, c="magenta", label='X-F1')
+#plt.scatter(x_e_frequencies, x_e_virt_heights, s=1, c="yellow", label='X-E')
+#plt.scatter(o_es_frequencies, o_es_virt_heights, s=1, c="black", label='O-Es')
+#plt.scatter(o_ea_frequencies, o_ea_virt_heights, s=1, c="#005030", label='O-E Aur')
+plt.plot(o_f2_frequencies, o_f2_virt_heights, c="blue", label='O-Trace Points - F2 Layer')
+plt.plot(o_f1_frequencies, o_f1_virt_heights, c="green", label='O-Trace Points - F1 Layer')
+plt.plot(o_e_frequencies, o_e_virt_heights, c="red", label='O-Trace Points - E Layer')
+plt.plot(x_f2_frequencies, x_f2_virt_heights, c="cyan", label='X-Trace Points - F2 Layer')
+plt.plot(x_f1_frequencies, x_f1_virt_heights, c="magenta", label='X-Trace Points - F1 Layer')
+plt.plot(x_e_frequencies, x_e_virt_heights, c="yellow", label='X-Trace Points - E Layer')
+plt.plot(o_es_frequencies, o_es_virt_heights, c="black", label='O-Trace Points - Es Layer')
+plt.plot(o_ea_frequencies, o_ea_virt_heights, c="#005030", label='O-Trace Points - E Auroral Layer')
 plt.plot(plasma_frequencies, true_heights, label='True')
 
 plt.legend(loc='upper right')
@@ -633,8 +791,8 @@ ax.set_ylabel('Virtual height (km)')
 # toggle output to file, comment/uncomment these lines 
 # if you don't want output to file: usage: python readsao.py inputfile
 
-savefilename = sys.argv[2]
-fig.savefig(savefilename)
+#savefilename = sys.argv[2]
+#fig.savefig(savefilename)
 
 # toggle output to screen, comment/uncomment the next line (note you can have both!)
 plt.show()
