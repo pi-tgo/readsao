@@ -14,11 +14,11 @@ import copy
 import matplotlib.pyplot as plt
 plt.rcParams["figure.figsize"] = (12, 8)
 
-filename = 'TR169_2020083143000.SAO'
+#filename = 'TR169_2020083143000.SAO'
 #filename = 'TR169_2020064101500.SAO'			# for testing purposes
 
-#f = open(sys.argv[1], "rb")				# comment if you want to run the code inside python using >>> exec(open('readsao.py').read())
-f = open(filename, "rb")				# use this if filename is defined above 
+f = open(sys.argv[1], "rb")				# comment if you want to run the code inside python using >>> exec(open('readsao.py').read())
+#f = open(filename, "rb")				# use this if filename is defined above 
 
 #-----------------
 # Data File Index 
@@ -823,8 +823,8 @@ ax.set_ylabel('Virtual height (km)')
 # toggle output to file, comment/uncomment these lines 
 # if you don't want output to file: usage: python readsao.py inputfile
 
-#savefilename = sys.argv[2]
-#fig.savefig(savefilename)
+savefilename = sys.argv[2]
+fig.savefig(savefilename)
 
 # toggle output to screen, comment/uncomment the next line (note you can have both!)
 plt.show()
