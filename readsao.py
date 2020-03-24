@@ -1,4 +1,4 @@
-#!/usr/bin/python
+!/usr/bin/python
 
 # Documentation of the SAO format: https://ulcar.uml.edu/~iag/SAO-4.3.htm
 
@@ -34,6 +34,11 @@ crdummy = f.read(2)
 data_index = f.read(40*3).decode("utf-8")
 for i in range(40):
    num_elements[i+40] = int(data_index[i*3:i*3+3])
+
+# Print out the number of elements in each group
+for i in range(80):
+   if num_elements[i] != 0:
+      print('GROUP ' + str(i+1) +': ' + str(int(num_elements[i])) + ' elements')
 
 crdummy = f.read(2)
 
@@ -233,7 +238,7 @@ if int(num_elements[12]) != 0:
    crdummy = f.read(2)
 
 #--------------------------------------------------
-# GROUP 14: O-Trace points - f1 layer - Amplitutes
+# GROUP 14: O-Trace points - f1 layer - Amplitudes
 #--------------------------------------------------
 
 o_f1_amplitudes = np.zeros(int(num_elements[13]))
@@ -298,7 +303,7 @@ if int(num_elements[17]) != 0:
    crdummy = f.read(2)
 
 #-------------------------------------------------
-# GROUP 19: O-Trace points - E layer - Amplitutes
+# GROUP 19: O-Trace points - E layer - Amplitudes
 #-------------------------------------------------
 
 o_e_amplitudes = np.zeros(int(num_elements[18]))
@@ -350,7 +355,7 @@ if int(num_elements[21]) != 0:
    crdummy = f.read(2)
 
 #--------------------------------------------------
-# GROUP 23: X-Trace points - f2 layer - Amplitutes
+# GROUP 23: X-Trace points - f2 layer - Amplitudes
 #--------------------------------------------------
 
 x_f2_amplitudes = np.zeros(int(num_elements[22]))
@@ -402,7 +407,7 @@ if int(num_elements[25]) != 0:
    crdummy = f.read(2)
 
 #--------------------------------------------------
-# GROUP 27: X-Trace points - f1 layer - Amplitutes
+# GROUP 27: X-Trace points - f1 layer - dmplitutes
 #--------------------------------------------------
 
 x_f1_amplitudes = np.zeros(int(num_elements[26]))
@@ -623,7 +628,7 @@ if int(num_elements[42]) != 0:
    crdummy = f.read(2)
 
 #--------------------------------------------------
-# GROUP 44: O-Trace points - Es layer - Amplitutes
+# GROUP 44: O-Trace points - Es layer - Amplitudes
 #--------------------------------------------------
 
 o_es_amplitudes = np.zeros(int(num_elements[43]))
@@ -675,7 +680,7 @@ if int(num_elements[46]) != 0:
    crdummy = f.read(2)
 
 #--------------------------------------------------
-# GROUP 48: O-Trace points - Es layer - Amplitutes
+# GROUP 48: O-Trace points - Es layer - Amplitudes
 #--------------------------------------------------
 
 o_ea_amplitudes = np.zeros(int(num_elements[47]))
@@ -752,6 +757,33 @@ for i in range(int(num_elements[52])):
 if int(num_elements[52]) != 0:
    crdummy = f.read(2)
 
+#-----------------------------------
+# GROUP 54: URSI Qualifying letters
+#-----------------------------------
+
+#------------------------------------
+# GROUP 55: URSI Descriptive letters
+#------------------------------------
+
+#------------------------------------------------
+# GROUP 56: URSI Edit flags - traces and profile
+#------------------------------------------------
+
+#-------------------------------------------------------------------------------------------
+# GROUP 57: Auroral E_Layer Profile Data - True heights coefficients Ea Layer Umclar method
+#-------------------------------------------------------------------------------------------
+
+#-------------------------------------------------------
+# GROUP 58: Auroral E_Layer Profile Data - True Heights
+#-------------------------------------------------------
+
+#-------------------------------------------------------------
+# GROUP 59: Auroral E_Layer Profile Data - Plasma Frequencies
+#-------------------------------------------------------------
+
+#-------------------------------------------------------------
+# GROUP 60: Auroral E_Layer Profile Data - Electron Densities
+#-------------------------------------------------------------
 
 f.close()
 
