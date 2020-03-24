@@ -1,4 +1,4 @@
-!/usr/bin/python
+#!/usr/bin/python
 
 # Documentation of the SAO format: https://ulcar.uml.edu/~iag/SAO-4.3.htm
 
