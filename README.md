@@ -5,7 +5,11 @@ Work in progress..
 For python >= 3.6
 Format: https://ulcar.uml.edu/~iag/SAO-4.3.htm
 
-Usage: python readsao.py inputfile outputfile
+Usage: python readsao.py inputfile <outputfile>
 
-Example: python readsao.py TR169_2020064101500.SAO output.png
+(outputfile is optional)
+
+Examples:
+python readsao.py TR169_2020064101500.SAO output.png
+python readsao.py TR169_2020064101500.SAO
 
