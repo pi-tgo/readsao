@@ -28,7 +28,11 @@ def read_group(group_number, length_of_element):
     for index in range(int(num_elements[group_number - 1])):
         if (index != 0) and ((index % round(120 / length_of_element)) == 0):
             f.read(2)
-        x[index] = f.read(length_of_element)
+        temp = f.read(length_of_element)
+        if temp.decode("utf-8") == ' Infinit':
+            x[index] = b'9999.000'
+        else:
+            x[index] = temp
     if int(num_elements[group_number - 1]) != 0:
         f.read(2)
     return x
@@ -37,9 +41,8 @@ def read_group(group_number, length_of_element):
 # filename = 'TR169_2020083143000.SAO'          # for testing purposes
 # filename = 'TR169_2020064101500.SAO'			# for testing purposes
 
-f = open(sys.argv[1],
-         "rb")  # comment if you want to run the code inside python using >>> exec(open('readsao.py').read())
-# f = open(filename, "rb")				# use this for testing purposes
+f = open(sys.argv[1], "rb")  # comment if you want to run the code inside python using >>> exec(open('readsao.py').read())
+# f = open(filename, "rb")			# use this for testing purposes
 
 # --------------------------------------------------
 # Data File Index - number of elements in each group
